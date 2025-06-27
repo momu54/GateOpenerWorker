@@ -11,7 +11,6 @@
 
    ```sh
    pnpm i
-
    ```
 
 2. 請跟隨 [Cloudflare 文件](https://developers.cloudflare.com/workers/configuration/versions-and-deployments/gradual-deployments/)
