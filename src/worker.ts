@@ -44,7 +44,7 @@ interface JsonResponseBody {
 interface ValueToGate {
 	action: DoorAction;
 	nonce: number;
-	timestamp: string;
+	expiry: string;
 }
 
 interface PayloadToGate {
