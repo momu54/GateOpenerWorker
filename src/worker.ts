@@ -154,8 +154,9 @@ async function SendToGate(action: DoorAction, env: Env) {
 		['sign']
 	);
 
-	const currentIsoTime = new Date().toISOString();
-	const value: ValueToGate = { action, nonce: Math.floor(Math.random() * 1000000000), timestamp: currentIsoTime };
+	const expiry = new Date();
+	expiry.setMinutes(expiry.getMinutes() + 1);
+	const value: ValueToGate = { action, nonce: Math.floor(Math.random() * 1000000000), timestamp: expiry.toISOString() };
 	const signatureBinarys = await crypto.subtle.sign(
 		{
 			name: 'HMAC',
