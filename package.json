@@ -1,14 +1,25 @@
 {
 	"name": "gateopener",
-	"version": "0.0.0",
+	"version": "1.0.0",
+	"license": "MIT",
 	"private": true,
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
-		"start": "wrangler dev"
+		"dev:public": "wrangler dev --ip 0.0.0.0",
+		"generate-types": "wrangler types",
+		"type-check": "generate-types && tsc",
+		"studio": "cross-env LOCAL_DB_PATH=$(find .wrangler/state/v3/d1/miniflare-D1DatabaseObject -type f -name '*.sqlite' -print -quit) drizzle-kit studio"
 	},
 	"devDependencies": {
-		"wrangler": "^4.20.5"
+		"@types/node": "^24.0.3",
+		"cross-env": "^7.0.3",
+		"drizzle-kit": "^0.31.2",
+		"typescript": "^5.8.3",
+		"wrangler": "^4.22.0"
 	},
-	"packageManager": "pnpm@9.14.2+sha512.6e2baf77d06b9362294152c851c4f278ede37ab1eba3a55fda317a4a17b209f4dbb973fb250a77abc463a341fcb1f17f17cfa24091c4eb319cda0d9b84278387"
+	"packageManager": "pnpm@9.14.2+sha512.6e2baf77d06b9362294152c851c4f278ede37ab1eba3a55fda317a4a17b209f4dbb973fb250a77abc463a341fcb1f17f17cfa24091c4eb319cda0d9b84278387",
+	"dependencies": {
+		"drizzle-orm": "^0.44.2"
+	}
 }
