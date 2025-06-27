@@ -1,0 +1,28 @@
+{
+	"$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+	"name": "gateopener",
+	"main": "src/worker.ts",
+	"workers_dev": true,
+	"compatibility_date": "2025-06-23",
+	"account_id": "580cd2deafa35619b7f513145abc2fa7",
+	"routes": [
+		{
+			"pattern": "gateopener.momu54.me",
+			"zone_name": "momu54.me",
+			"custom_domain": true
+		}
+	],
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "PublicKeys",
+			"database_name": "GateopenerPublicKeys",
+			"database_id": "b9ae040e-65c3-403f-bb25-76eaeafe5640"
+		}
+	],
+	"vars": {
+		"ENVIRONMENT": "PRODUCTION"
+	}
+}
