@@ -1,4 +1,4 @@
-English | [繁體中文](https://github.com/momu54/GateOpenerWorker/blob/main/README.tw.md)
+English | [繁體中文](https://github.com/momu54/GateOpenerWorker/blob/master/README.tw.md)
 
 # Gate Opener Worker
 

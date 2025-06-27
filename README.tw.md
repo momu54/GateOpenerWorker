@@ -1,4 +1,4 @@
-[English](https://github.com/momu54/GateOpenerWorker/blob/main/README.md) | 繁體中文
+[English](https://github.com/momu54/GateOpenerWorker/blob/master/README.md) | 繁體中文
 
 # 閘門開門器 Worker 儲存庫 Gate Opener Worker
 
