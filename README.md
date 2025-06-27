@@ -1,3 +1,5 @@
+English | [繁體中文](https://github.com/momu54/GateOpenerWorker/blob/main/README.tw.md)
+
 # Gate Opener Worker
 
 The repository is a proxy to verify signature from the mobile.
@@ -7,7 +9,7 @@ It'll send gate command to the microcontroller.
 
 1. Install dependencies
 
-   ```bash
+   ```sh
    pnpm i
    ```
 
