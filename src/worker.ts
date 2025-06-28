@@ -156,7 +156,7 @@ async function SendToGate(action: DoorAction, env: Env) {
 
 	const expiry = new Date();
 	expiry.setMinutes(expiry.getMinutes() + 1);
-	const value: ValueToGate = { action, nonce: Math.floor(Math.random() * 1000000000), expiry: expiry.toISOString() };
+	const value: ValueToGate = { action, expiry: expiry.toISOString(), nonce: Math.floor(Math.random() * 1000000000) };
 	const signatureBinarys = await crypto.subtle.sign(
 		{
 			name: 'HMAC',

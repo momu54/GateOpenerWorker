@@ -23,7 +23,7 @@
 		}
 	],
 	"vars": {
-		"ENVIRONMENT": "PRODUCTION",
+		"ENVIRONMENT": "DEVELOPMENT",
 		"GATE_URL": "https://gate.momu54.me/"
 	}
 }
