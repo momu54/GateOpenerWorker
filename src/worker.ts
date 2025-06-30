@@ -123,7 +123,7 @@ const PublicKeyUpdateHandler: ExportedHandlerFetchHandler<Env> = async (request,
 	return NewJsonResponse<{ newKey: KeyStore }>(200, { newKey: updateTo, status: 'success', message: 'Key updated' });
 };
 
-const TableHandler: ExportedHandlerFetchHandler<Env> = async (request, env, _ctx) => {
+const TableHandler: ExportedHandlerFetchHandler<Env> = async (_request, env, _ctx) => {
 	const publicKeysDB = drizzle(env.PublicKeys, { schema: { public_keys: publicKeysTable } });
 	await publicKeysDB.run(sql`CREATE TABLE IF NOT EXISTS public_keys (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -132,15 +132,6 @@ const TableHandler: ExportedHandlerFetchHandler<Env> = async (request, env, _ctx
 	)`);
 	return NewJsonResponse(200, { status: 'success', message: 'Table created or already exists' });
 };
-
-function stringToArrayBuffer(str: string): ArrayBuffer {
-	const buffer = new ArrayBuffer(str.length);
-	const bufferView = new Uint8Array(buffer);
-	for (let i = 0; i < str.length; i++) {
-		bufferView[i] = str.charCodeAt(i);
-	}
-	return buffer;
-}
 
 async function SendToGate(action: DoorAction, env: Env) {
 	const hmacKey = await crypto.subtle.importKey(
@@ -154,6 +145,7 @@ async function SendToGate(action: DoorAction, env: Env) {
 		['sign']
 	);
 
+	const encoder = new TextEncoder();
 	const expiry = new Date();
 	expiry.setMinutes(expiry.getMinutes() + 1);
 	const value: ValueToGate = { action, expiry: expiry.toISOString(), nonce: Math.floor(Math.random() * 1000000000) };
@@ -162,21 +154,20 @@ async function SendToGate(action: DoorAction, env: Env) {
 			name: 'HMAC',
 		},
 		hmacKey,
-		stringToArrayBuffer(JSON.stringify<ValueToGate>(value))
+		encoder.encode(JSON.stringify<ValueToGate>(value))
 	);
 
 	const payload: PayloadToGate = {
 		value,
 		signature: btoa(String.fromCharCode(...new Uint8Array(signatureBinarys))),
 	};
-	const init = new Request(env.GATE_URL, {
+	const response = await fetch(env.GATE_URL, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify(payload),
 	});
-	const response = await fetch(init);
 
 	return response.ok
 		? NewJsonResponse(200, {
@@ -197,9 +188,9 @@ const GateHandler: ExportedHandlerFetchHandler<Env> = async (request, env): Prom
 
 	if (!key) return GetUnauthorizedResponse();
 
-	const recivedKeyBinary = stringToArrayBuffer(atob(requestPayload.publicKey));
-	const signatureBinary = stringToArrayBuffer(atob(requestPayload.signature));
-
+	const encoder = new TextEncoder();
+	const recivedKeyBinary = encoder.encode(requestPayload.publicKey);
+	const signatureBinary = encoder.encode(requestPayload.signature);
 	const recivedKey = await crypto.subtle.importKey(
 		'spki',
 		recivedKeyBinary,
@@ -218,7 +209,7 @@ const GateHandler: ExportedHandlerFetchHandler<Env> = async (request, env): Prom
 		},
 		recivedKey,
 		signatureBinary,
-		stringToArrayBuffer(requestPayload.action)
+		encoder.encode(requestPayload.action)
 	);
 
 	if (!VerifyResult) {
@@ -227,6 +218,8 @@ const GateHandler: ExportedHandlerFetchHandler<Env> = async (request, env): Prom
 
 	return await SendToGate(requestPayload.action, env);
 };
+
+const GetNotProductionResponse = () => NewJsonResponse(403, { status: 'failed', message: 'Not allowed in production' });
 
 export default {
 	async fetch(request, env, context) {
@@ -237,19 +230,19 @@ export default {
 					case 'POST':
 						return await PublicKeyPostHandler(request, env, context);
 					case 'GET':
-						if (env.ENVIRONMENT !== 'DEVELOPMENT') return NewJsonResponse(403, { status: 'failed', message: 'Not allowed in production' });
+						if (env.ENVIRONMENT !== 'DEVELOPMENT') return GetNotProductionResponse();
 						return await PublicKeyGetHandler(request, env, context);
 					case 'DELETE':
-						if (env.ENVIRONMENT !== 'DEVELOPMENT') return NewJsonResponse(403, { status: 'failed', message: 'Not allowed in production' });
+						if (env.ENVIRONMENT !== 'DEVELOPMENT') return GetNotProductionResponse();
 						return await PublicKeyDeleteHandler(request, env, context);
 					case 'PATCH':
-						if (env.ENVIRONMENT !== 'DEVELOPMENT') return NewJsonResponse(403, { status: 'failed', message: 'Not allowed in production' });
+						if (env.ENVIRONMENT !== 'DEVELOPMENT') return GetNotProductionResponse();
 						return await PublicKeyUpdateHandler(request, env, context);
 					default:
 						return GetMethodNotAllowedResponse();
 				}
 			case '/table':
-				if (env.ENVIRONMENT !== 'DEVELOPMENT') return NewJsonResponse(403, { status: 'failed', message: 'Not allowed in production' });
+				if (env.ENVIRONMENT !== 'DEVELOPMENT') return GetNotProductionResponse();
 				if (request.method !== 'PUT') return GetMethodNotAllowedResponse();
 				return await TableHandler(request, env, context);
 			case '/gate':
